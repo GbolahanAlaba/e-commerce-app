@@ -1,9 +1,9 @@
 
-# **Sumsub KYC App**
+# **E-commerce App**
 
 ## **Overview**
 
-This project demonstrates a simple application that interacts with the SUMSUB API, a compliance platform that helps businesses verify customers and comply with regulations. The application is designed to showcase how to integrate the SUMSUB API into a Django Rest Framework (DRF) project, enabling seamless customer verification and regulatory compliance.
+This eCommerce project provides a seamless shopping experience with a set of essential features, including user authentication, product browsing, cart management, and payment integration. Here's a detailed description of the project:
 
 ## **Prerequisites**
 
