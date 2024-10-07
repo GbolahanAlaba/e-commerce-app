@@ -64,7 +64,6 @@ Base URL - `http://127.0.0.1:8000/`
 - `POST /auth/signup/`: Signup an account.
 
 
-
 ## **API Implementation**
 
 
@@ -73,20 +72,9 @@ Base URL - `http://127.0.0.1:8000/`
 - **Request Body**:
 
   ```json
-  {  
-    "levelName": "Cam",
-    "externalUserId": "55544",
-    "type": "individual",
-    "info": { "companyInfo": {
-            "address": {
-                "street": "Sola Makidne",
-                "postCode": "100275"
-            },
-            "companyName": "Expedier",
-            "registrationNumber": "BC123456",
-            "country": "Nigeria",
-            "legalAddress": "3, Ajilekege Street, Idimu"
-        } }
+  {
+    "email_or_phone": "admin@gmail.com" or "09073832843",
+    "password": "pass"
   }
 
 - **Response**:
@@ -94,211 +82,32 @@ Base URL - `http://127.0.0.1:8000/`
   ```json
   {
     "status": "success",
-    "message": "applicant created successfully",
+    "message": "signin successfully",
     "data": {
-        "id": "66fea5d8f7da9104ccf04036",
-        "createdAt": "2024-10-03 14:10:32",
-        "createdBy": "service-sbx-APBRRXWFWAVYKL-app-gb",
-        "key": "APBRRXWFWAVYKL",
-        "clientId": "globalme.com",
-        "inspectionId": "66fea5d8f7da9104ccf04036",
-        "externalUserId": "5990vv544",
-        "info": {
-            "companyInfo": {
-                "companyName": "Expedier",
-                "registrationNumber": "BC123456",
-                "country": "Nigeria",
-                "legalAddress": "3, Ajilekege Street, Idimu",
-                "address": {
-                    "street": "Sola Makidne",
-                    "postCode": "100275"
-                }
-            }
-        },
-        "applicantPlatform": "API",
-        "requiredIdDocs": {
-            "docSets": [
-                {
-                    "idDocSetType": "IDENTITY",
-                    "types": [
-                        "DRIVERS",
-                        "ID_CARD",
-                        "RESIDENCE_PERMIT",
-                        "PASSPORT"
-                    ],
-                    "videoRequired": "disabled"
-                },
-                {
-                    "idDocSetType": "SELFIE",
-                    "types": [
-                        "SELFIE"
-                    ],
-                    "videoRequired": "photoRequired"
-                }
-            ]
-        },
-        "review": {
-            "reviewId": "PRkXY",
-            "attemptId": "lVPhL",
-            "attemptCnt": 0,
-            "levelName": "Cam",
-            "levelAutoCheckMode": null,
-            "createDate": "2024-10-03 14:10:32+0000",
-            "reviewStatus": "init",
-            "priority": 0
-        },
-        "type": "individual"
-    }
-  }
-
-`201 Created` on success.
-
-`409 Conflict` on conflict error.
-
-`509 Internal Server Error` on server error.
-
-
-
-#### POST /add-id-document/{applicant_id}/
-
-- **Request Body**:
-
-  ```json
-  {
-    "img_url": "https://www.ryrob.com/wp-content/uploads/2020/04/What-is-a-URL-Website-URLs-Explained-and-Best-Practices-for-Creating-URLs.jpg",
-    "idDocType": "PASSPORT",
-    "country": "USA"
-  }
-
-- **Response**:
-
-  ```json
-  {
-    "status": "success",
-    "message": "Document added successfully",
-    "data": {
-        "idDocType": "PASSPORT",
-        "country": "USA"
-    }
+        "user_id": "7ee38ad4-f0eb-42b1-87c4-175ce6ae467b",
+        "first_name": "",
+        "last_name": "",
+        "email": "admin@gmail.com",
+        "phone": "08011112222",
+        "address": "Your address",
+        "state": "Your state",
+        "lga": "Your LGA",
+        "residential": "",
+        "gender": true,
+        "referral_code": "",
+        "is_staff": true
+    },
+    "token": "96cdda6bfec57d759752590ca3aef9359fa6684f79d409ad1822df69e18bc90e"
   }
 
 `200 OK` on success.
 
-`400 Bad Request` on validation error.
+`404 Not Found` on not found error.
+
+`403 Forbidden` on forbidden error.
 
 `509 Internal Server Error` on server error.
 
-
-
-#### GET /fetch-verification-status/{applicant_id}/
-
-- **Response**:
-
-  ```json
-  {
-    "status": "success",
-    "message": "Verification status for: 66fe7d5e43297b0628f2054d",
-    "data": {
-        "IDENTITY": null,
-        "SELFIE": null
-    }
-  }
-
-`200 OK` with applicant successful verification status.
-
-`400 Bad Request` on validation error.
-
-`509 Internal Server Error` on server error.
-
-
-#### GET /all-saved-verification-status/
-
-- **Response**:
-
-  ```json
-  {
-    "status": "success",
-    "message": "All saved Verification data",
-    "data": [
-        {
-            "applicant_id": "66fe86b143297b0628f286ac",
-            "country": "USA",
-            "id_doc_type": "PASSPORT",
-            "image_ids": [
-                1306190006
-            ],
-            "image_review_results": {
-                "1306190006": {}
-            },
-            "forbidden": false,
-            "partial_completion": null,
-            "step_statuses": null,
-            "image_statuses": [],
-            "selfie": null
-        },
-        {
-            "applicant_id": "66fe7d5e43297b0628f2054d",
-            "country": "USA",
-            "id_doc_type": "PASSPORT",
-            "image_ids": [
-                62458182
-            ],
-            "image_review_results": {
-                "62458182": {}
-            },
-            "forbidden": false,
-            "partial_completion": null,
-            "step_statuses": null,
-            "image_statuses": [],
-            "selfie": null
-        },
-        {
-            "applicant_id": "66ff9996af3a7e2194c8ba19",
-            "country": "Unknown",
-            "id_doc_type": "Unknown",
-            "image_ids": [],
-            "image_review_results": {},
-            "forbidden": false,
-            "partial_completion": null,
-            "step_statuses": null,
-            "image_statuses": [],
-            "selfie": null
-        }
-    ]
-  }
-
-`200 OK` with all applicant successful verification status data.
-
-`509 Internal Server Error` on server error.
-
-
-#### GET /get-saved-verification-status/{applicant_id}/
-
-- **Response**:
-
-  ```json
-  {
-    "status": "success",
-    "message": "Verification data for applicant 66fe7d5e43297b0628f2054d",
-    "data": {
-        "applicant_id": "66fe7d5e43297b0628f2054d",
-        "country": "USA",
-        "id_doc_type": "PASSPORT",
-        "image_ids": "[62458182]",
-        "image_review_results": "{\"62458182\": {}}",
-        "forbidden": false,
-        "partial_completion": null,
-        "step_statuses": "[]",
-        "image_statuses": "[]",
-        "selfie": null
-    }
-  }
-
-`200 OK` with an applicant successful verification status.
-
-`400 Bad Request` on validation error.
-
-`509 Internal Server Error` on server error.
 
 
 ## **Testing**

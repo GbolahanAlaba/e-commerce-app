@@ -92,7 +92,7 @@ class AuthViewSets(viewsets.ModelViewSet):
 
             response_data = {
                 "status": "success",
-                "message": "signin successfully",
+                "message": "Signin successfully",
                 "data":{
                     "user_id": user.user_id,
                     "first_name": user.first_name,
@@ -144,7 +144,7 @@ class AuthViewSets(viewsets.ModelViewSet):
 
         return Response({
             "status": "success",
-            "message": "signup successfully, OTP (%s) sent to your mail"%(key),
+            "message": "Signup successfully, OTP (%s) sent to your mail"%(key),
             "data": {
                 "user_id": user.user_id,
                 "first_name": user.first_name,
