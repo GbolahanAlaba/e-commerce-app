@@ -46,8 +46,6 @@ class AuthTokenSerializer(serializers.Serializer):
             if not user:
                 raise NotAuthenticated({"status": "failed", "message": "Incorrect login details"}, code=status.HTTP_401_UNAUTHORIZED)
 
-                # msg = {"status": "failed", "message": "Incorrect login details"}
-                # raise serializers.ValidationError(msg, code="authentication_failed")
         else:
             msg = _('Must include "email_or_phone" and "password".')
             raise serializers.ValidationError(msg, code='authorization')
@@ -61,7 +59,7 @@ class SignupSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'first_name', 'last_name', 'email', 'phone', 'password', 'referral', 'address', 'state', 'city', 'lga', 'residential', 'gender', 'agree_terms')
+        fields = ('user_id', 'first_name', 'last_name', 'email', 'phone', 'password', 'referral', 'address', 'state', 'city', 'lga', 'residential', 'gender', 'agree_terms')
         extra_kwargs = {'password': {'write_only': True}}  # Ensure password is write-only
     
     def create(self, validated_data):

@@ -17,9 +17,9 @@ This eCommerce project provides a seamless shopping experience with a set of ess
 Clone the Repository
 
 
-git clone https://github.com/GbolahanAlaba/sumsub_kyc_app
+git clone https://github.com/GbolahanAlaba/ecommerce-app
 
-cd sumsub_kyc_app
+cd ecommerce-app
 
 
 ## **Create Virtual Environment**
@@ -58,13 +58,11 @@ Start the development server to verify everything is set up correctly:
 You should now be able to access the application at http://127.0.0.1:8000/api
 
 ## **API Endpoints**
-Base URL - `http://127.0.0.1:8000/api`
+Base URL - `http://127.0.0.1:8000/`
 
-- `POST /create-applicant/`: Create a new applicant.
-- `POST /add-id-document/{applicant_id}/`: Upload applicant ID document.
-- `GET /fetch-verification-status/{applicant_id}/`: Fetch applicant verification status.
-- `GET /all-saved-verification-status/`: Get all saved applicant verification status data.
-- `GET /get-saved-verification-status/{applicant_id}/`: Get saved applicant verification status data.
+- `POST /auth/signin/`: Signin as a user or admin.
+- `POST /auth/signup/`: Signup an account.
+
 
 
 ## **API Implementation**

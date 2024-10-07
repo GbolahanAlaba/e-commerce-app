@@ -94,7 +94,7 @@ class AuthViewSets(viewsets.ModelViewSet):
                 "status": "success",
                 "message": "signin successfully",
                 "data":{
-                    "id": user.id,
+                    "user_id": user.user_id,
                     "first_name": user.first_name,
                     "last_name": user.last_name,
                     "email": user.email,
@@ -146,20 +146,10 @@ class AuthViewSets(viewsets.ModelViewSet):
             "status": "success",
             "message": "signup successfully, OTP (%s) sent to your mail"%(key),
             "data": {
-                "id": user.id,
+                "user_id": user.user_id,
                 "first_name": user.first_name,
                 "last_name": user.last_name,
                 "email": user.email,
-                "phone": user.phone,
-                "referral": user.referral,
-                "address": user.address,
-                "state": user.state,
-                "lga": user.lga,
-                "residential": user.residential,
-                "gender": user.gender,
-                "agree_terms": user.agree_terms,
-                "is_staff": user.is_staff,
-                "is_active": user.is_active
             },
             # "token": token
         }, status=status.HTTP_201_CREATED)
