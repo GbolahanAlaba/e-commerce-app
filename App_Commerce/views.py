@@ -10,10 +10,6 @@ from rest_framework import status
 from knox.auth import TokenAuthentication
 from random import randint
 from rest_framework.permissions import IsAuthenticated, AllowAny
-
-from django.contrib.auth.hashers import make_password, check_password
-from django.core.mail import send_mail
-from App_Auth.models import *
 from django.shortcuts import get_object_or_404
 from decimal import Decimal
 from django.db import IntegrityError
@@ -23,20 +19,8 @@ from functools import wraps
 from django.db.models import Avg
 import math
 from rest_framework.decorators import action
-import random
-import json
-from django.core.cache import cache
 
 
-def handle_exceptions(func):
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        try:
-            return func(*args, **kwargs)
-        except Exception as e:
-            error_message = str(e)
-            return Response({"status": "failed", "message": error_message}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    return wrapper
 
 # class CategoryViewSets(viewsets.ViewSet):
 #     serializer_class = CategorySerializer
