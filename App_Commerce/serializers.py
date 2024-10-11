@@ -25,7 +25,7 @@ class CategorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Category
-        fields = ['id', 'category', 'description', 'subcategories']
+        fields = ['category_id', 'name', 'description', 'subcategories']
 
     def create(self, validated_data):
         

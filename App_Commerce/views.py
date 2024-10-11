@@ -14,7 +14,7 @@ class CategoryViewSets(viewsets.ViewSet):
 
     @handle_exceptions
     def create_category(self, request):
-        category_name = request.data["category"]
+        category_name = request.data["name"]
         queryset = Category.objects.filter(name=category_name).exists()
 
         if queryset:
@@ -33,8 +33,8 @@ class CategoryViewSets(viewsets.ViewSet):
         serializer = self.serializer_class(queryset, many=True)
         category_data = [
             {
-                'id': category['id'],
-                'category': category['category'],
+                'category_id': category['category_id'],
+                'name': category['name'],
             }
             for category in serializer.data
         ]
