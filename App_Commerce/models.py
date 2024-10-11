@@ -10,7 +10,7 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 
 class Category(models.Model):
     category_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    category = models.CharField(max_length=100, blank=True, null=True, default="")
+    name = models.CharField(max_length=100, blank=True, null=True, default="")
     description = models.CharField(max_length=100, blank=True, null=True, default="")
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True, default="")
     date_created = models.DateTimeField(default=timezone.now)
@@ -21,18 +21,18 @@ class Category(models.Model):
         verbose_name_plural = "Categories"
 
     def __str__(self):
-        return str(self.category)
+        return str(self.name)
     
 class Subcategory(models.Model):
     subcategory_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, blank=True, null=True, default="", related_name="subcategories")
-    subcategory = models.CharField(max_length=100, blank=True, null=True, default="")
+    name = models.CharField(max_length=100, blank=True, null=True, default="")
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True, default="")
     date_created = models.DateTimeField(default=timezone.now)
     date_modified = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return str(self.subcategory)
+        return str(self.name)
     
     class Meta:
         verbose_name = 'Subcategory'

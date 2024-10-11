@@ -6,6 +6,6 @@ from knox import views as knox_views
 
 
 urlpatterns = [
-   # path('products/', ProductsViewSet.as_view({"get": "all_products"}), name='products'), # view_product
+   path('create-category/', CategoryViewSets.as_view({"post": "create_category"}), name='category-create'),
   
 ]
