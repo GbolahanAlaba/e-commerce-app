@@ -12,7 +12,6 @@ class Category(models.Model):
     category_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=100, blank=True, null=True, default="")
     description = models.CharField(max_length=100, blank=True, null=True, default="")
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True, default="")
     date_created = models.DateTimeField(default=timezone.now)
     date_modified = models.DateTimeField(default=timezone.now)
 
@@ -27,7 +26,6 @@ class Subcategory(models.Model):
     subcategory_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, blank=True, null=True, default="", related_name="subcategories")
     name = models.CharField(max_length=100, blank=True, null=True, default="")
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True, default="")
     date_created = models.DateTimeField(default=timezone.now)
     date_modified = models.DateTimeField(default=timezone.now)
 
