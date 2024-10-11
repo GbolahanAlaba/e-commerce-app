@@ -1,87 +1,86 @@
-# from django.contrib.auth.models import User
-# from . models import *
-# from rest_framework.response import Response
-# from rest_framework import serializers, validators
-# from django.utils.translation import gettext_lazy as _
-# from rest_framework import status
-# from rest_framework.exceptions import *
-# from drf_extra_fields.fields import Base64ImageField
-# from django.db.models import Count
-# from django.db.models import Avg, Count
-# import math
-# from django.db.models import Sum, F, ExpressionWrapper, DecimalField
+from django.contrib.auth.models import User
+from . models import *
+from rest_framework.response import Response
+from rest_framework import serializers, validators
+from django.utils.translation import gettext_lazy as _
+from rest_framework import status
+from rest_framework.exceptions import *
+from drf_extra_fields.fields import Base64ImageField
+from django.db.models import Count
+from django.db.models import Avg, Count
+from random import randint
 
 
 
 
 
-# class SubcategorySerializer(serializers.ModelSerializer):
+class SubcategorySerializer(serializers.ModelSerializer):
 
-#     class Meta:
-#         model = Subcategory
-#         fields = ['id', 'category', 'subcategory']
+    class Meta:
+        model = Subcategory
+        fields = ['id', 'category', 'subcategory']
 
-# class CategorySerializer(serializers.ModelSerializer):
-#     subcategories = SubcategorySerializer(many=True, read_only=True)
+class CategorySerializer(serializers.ModelSerializer):
+    subcategories = SubcategorySerializer(many=True, read_only=True)
 
-#     class Meta:
-#         model = Category
-#         fields = ['id', 'category', 'description', 'subcategories']
+    class Meta:
+        model = Category
+        fields = ['id', 'category', 'description', 'subcategories']
 
-#     def create(self, validated_data):
+    def create(self, validated_data):
         
-#         category = Category.objects.create(**validated_data)
-#         return category
+        category = Category.objects.create(**validated_data)
+        return category
 
-# class ProductImageSerializer(serializers.ModelSerializer):
-#     image = serializers.CharField(required=False)
+class ProductImageSerializer(serializers.ModelSerializer):
+    image = serializers.CharField(required=False)
 
-#     class Meta:
-#         model = ProductImage
-#         fields = ['id', 'product', 'image']
+    class Meta:
+        model = ProductImage
+        fields = ['id', 'product', 'image']
 
-# class UploadProductSerializer(serializers.ModelSerializer):
-#     slug = serializers.CharField(read_only=True)
-#     images = ProductImageSerializer(many=True, read_only=True)
-#     product_images = serializers.ListField(
-#         child = Base64ImageField(max_length=1000000, allow_empty_file = True, use_url = False),
-#         write_only = True
-#         )
+class UploadProductSerializer(serializers.ModelSerializer):
+    slug = serializers.CharField(read_only=True)
+    images = ProductImageSerializer(many=True, read_only=True)
+    product_images = serializers.ListField(
+        child = Base64ImageField(max_length=1000000, allow_empty_file = True, use_url = False),
+        write_only = True
+        )
 
-#     class Meta:
-#         model = Product
-#         fields = ('id', 'name', 'category', 'subcategory', 'price', 'discount', 'quantity', 'weight', 'featured', 'top_deal', 'description', 'slug', 'images', 'product_images')
+    class Meta:
+        model = Product
+        fields = ('id', 'name', 'category', 'subcategory', 'price', 'discount', 'quantity', 'weight', 'featured', 'top_deal', 'description', 'slug', 'images', 'product_images')
 
-#     def create(self, validated_data):
-#         product_images = validated_data.pop('product_images', [])
+    def create(self, validated_data):
+        product_images = validated_data.pop('product_images', [])
 
-#         pn = {'pn': 'PN'}
-#         product_no = "{}{}".format(pn ['pn'], randint(1000000, 9000000))
+        pn = {'pn': 'PN'}
+        product_no = "{}{}".format(pn ['pn'], randint(1000000, 9000000))
         
-#         product = Product.objects.create(**validated_data, product_no=product_no)
-#         for image in product_images:
-#             new_product_image = ProductImage.objects.create(product=product, image=image)
-#         return product
+        product = Product.objects.create(**validated_data, product_no=product_no)
+        for image in product_images:
+            new_product_image = ProductImage.objects.create(product=product, image=image)
+        return product
 
-#     def update(self, instance, validated_data):
-#         instance.name = validated_data.get('name', instance.name)
-#         instance.category = validated_data.get('category', instance.category)
-#         instance.subcategory = validated_data.get('subcategory', instance.subcategory)
-#         instance.price = validated_data.get('price', instance.price)
-#         instance.discount = validated_data.get('discount', instance.discount)
-#         instance.weight = validated_data.get('weight', instance.weight)
-#         instance.description = validated_data.get('description', instance.description)
-#         instance.save()
+    def update(self, instance, validated_data):
+        instance.name = validated_data.get('name', instance.name)
+        instance.category = validated_data.get('category', instance.category)
+        instance.subcategory = validated_data.get('subcategory', instance.subcategory)
+        instance.price = validated_data.get('price', instance.price)
+        instance.discount = validated_data.get('discount', instance.discount)
+        instance.weight = validated_data.get('weight', instance.weight)
+        instance.description = validated_data.get('description', instance.description)
+        instance.save()
 
-#         # Update product images if provided
-#         product_images_data = validated_data.get('product_images')
-#         if product_images_data:
-#             # Delete existing images
-#             instance.images.all().delete()
-#             # Create new images
-#             for image_data in product_images_data:
-#                 ProductImage.objects.create(product=instance, image=image_data)
-#         return instance
+        # Update product images if provided
+        product_images_data = validated_data.get('product_images')
+        if product_images_data:
+            # Delete existing images
+            instance.images.all().delete()
+            # Create new images
+            for image_data in product_images_data:
+                ProductImage.objects.create(product=instance, image=image_data)
+        return instance
     
 # class ProductSerializer(serializers.ModelSerializer):
 #     images = ProductImageSerializer(many=True, read_only=True)

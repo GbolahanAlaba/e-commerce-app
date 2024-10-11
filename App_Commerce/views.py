@@ -4,123 +4,219 @@ from django.shortcuts import render
 from . models import *
 from . serializers import *
 from . serializers import *
+from . utils import *
 from django.contrib.auth import get_user_model
 from rest_framework import viewsets, permissions, status
 from rest_framework import status
 from knox.auth import TokenAuthentication
-from random import randint
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from django.shortcuts import get_object_or_404
-from decimal import Decimal
-from django.db import IntegrityError
-from urllib.parse import quote, unquote
 from django.contrib.sessions.models import Session
-from functools import wraps
-from django.db.models import Avg
-import math
-from rest_framework.decorators import action
 
 
 
-# class CategoryViewSets(viewsets.ViewSet):
-#     serializer_class = CategorySerializer
 
-#     @handle_exceptions
-#     def list_categories(self, request):
-#         categories = Category.objects.all().order_by("date_created")
+class CategoryViewSets(viewsets.ViewSet):
+    serializer_class = CategorySerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
 
-#         serializer = self.serializer_class(categories, many=True)
+    @handle_exceptions
+    def create_category(self, request):
+        user = User.objects.filter(id=request.user.id).first()
+        category = request.data["category"]
+        cat = Category.objects.filter(category=category).exists()
 
-#         category_data = []
-#         for category in serializer.data:
-#             selected_fields = {
-#                 'id': category.get('id'),
-#                 'name': category.get('category'),
-#                 'description': category.get('description'),
-#                 'image': category.get('images'),              
-#             }
-#             category_data.append(selected_fields)
+        if not user:
+            return Response({"status": "failed", "message": "User does not exist."}, status=status.HTTP_404_NOT_FOUND)
+        elif user.is_staff == False:
+            return Response({"status": "failed", "message": "You are not permitted to perform this operation."}, status=status.HTTP_403_FORBIDDEN)
+        elif cat:
+            return Response({"status": "failed", "message": "Category already created."}, status=status.HTTP_409_CONFLICT)
+        else:
+            serializer = self.serializer_class(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save(created_by=user)
+            return Response({"status": "success", "message": "Category created successfully"}, status=status.HTTP_201_CREATED)
+    
+    @handle_exceptions
+    def categories_and_subcategories(self, request):
+        user = request.user
+        cache_key = 'categories_and_subcategories'
+        category_data = cache.get(cache_key)
+
+        if user.is_staff == False:
+            return Response({"status": "failed", "message": "You are not permitted to view this resource."}, status=status.HTTP_403_FORBIDDEN)
+        else:
+            if not category_data:
+                cat = Category.objects.all().order_by("date_created")
+                serializer = self.serializer_class(cat, many=True)
+                category_data = [
+                    {
+                        'id': category['id'],
+                        'category': category['category'],
+                        'subcategories': [
+                            {
+                                'id': subcat['id'],
+                                'subcategory': subcat['subcategory']
+                            }
+                            for subcat in category.get('subcategories', [])
+                        ]
+                    }
+                    for category in serializer.data
+                ]
+                cache.set(cache_key, category_data, 60 * 60)  # Cache for 60 minutes
+            return Response({"status": "success", "message": "Categories and their subcategories", "data": category_data}, status=status.HTTP_200_OK)
         
-#         return Response({"status": "success", "message": "All categories", "data": category_data}, status=status.HTTP_200_OK)
-    
-#     @handle_exceptions
-#     def categories_and_subcategories(self, request):
-#         cache_key = 'categories_and_subcategories'
-#         category_data = cache.get(cache_key)
-#         source = "cache" if category_data else "database"
+    @handle_exceptions
+    def categories(self, request):
+        user = User.objects.filter(id=request.user.id).first()
+        cat = Category.objects.all().order_by("date_created")
+        cache_key = 'categories_and_subcategories'
+        category_data = cache.get(cache_key)
 
-#         if not category_data:
-#             cat = Category.objects.all().order_by("date_created")
-#             serializer = self.serializer_class(cat, many=True)
-#             category_data = [
-#                 {
-#                     'id': category['id'],
-#                     'category': category['category'],
-#                     'subcategories': [
-#                         {
-#                             'id': subcat['id'],
-#                             'subcategory': subcat['subcategory']
-#                         }
-#                         for subcat in category.get('subcategories', [])
-#                     ]
-#                 }
-#                 for category in serializer.data
-#             ]
-#             cache.set(cache_key, category_data, 60 * 60)  # Cache for 60 minutes
-#         # return Response({"status": "success", "message": "Categories and their subcategories", "data": category_data}, status=status.HTTP_200_OK)
-#         response = Response({"status": "success", "message": "Categories and their subcategories", "data": category_data}, status=status.HTTP_200_OK)
-#         response['X-Cache-Source'] = source  # Add custom header indicating source
-#         return response
-    
-    
-#     @handle_exceptions
-#     def category_and_subcategories(self, request, category_id):
-#         cache_key = 'category_and_subcategories'
-#         category_data = cache.get(cache_key)
+        if not user:
+            return Response({"status": "failed", "message": "User does not exist."}, status=status.HTTP_404_NOT_FOUND)
+        elif user.is_staff == False:
+            return Response({"status": "failed", "message": "You are not permitted to view this resource."}, status=status.HTTP_403_FORBIDDEN)
+        else:
+            if not category_data:
+                serializer = self.serializer_class(cat, many=True)
+                category_data = [
+                    {
+                        'id': category['id'],
+                        'category': category['category'],
+                    }
+                    for category in serializer.data
+                ]
+                cache.set(cache_key, category_data, 60 * 60)  # Cache for 60 minutes
+                return Response({"status": "success", "message": "All categories", "data": category_data}, status=status.HTTP_200_OK)
+            
 
-#         if not category_data:
-#             cat = Category.objects.filter(id=category_id).first()
-
-#             serializer = self.serializer_class(cat)
-#             category_data = {
-#             'id': serializer.data.get('id'),
-#             'category_name': serializer.data.get('category'),
-#             'subcategories': [
-#                 {
-#                     'id': subcat.get('id'),
-#                     'name': subcat.get('subcategory')
-#                 }
-#                 for subcat in serializer.data.get('subcategories', [])
-#                 ]
-#             }
-#             cache.set(cache_key, category_data, 60 * 60)
+    # SUBCATEGORY
+    @handle_exceptions
+    def create_subcategory(self, request, *args, **kwargs):
+        user = User.objects.filter(id=request.user.id).first()
+        category = request.data["category"]
+        subcategory = request.data["subcategory"]
+        subcat = Subcategory.objects.filter(subcategory=subcategory, category=category)
         
-#         return Response({"status": "success", "message": f"{cat.category} subcategories", "data": category_data}, status=status.HTTP_200_OK)
+        if not user:
+            return Response({"status": "failed", "message": "User does not exist."}, status=status.HTTP_404_NOT_FOUND)
+        elif user.is_staff == False:
+            return Response({"status": "failed", "message": "You are not permitted to perform this operation."}, status=status.HTTP_403_FORBIDDEN)
+        elif subcat:
+            return Response({"status": "failed", "message": "Subcategory already created."}, status=status.HTTP_409_CONFLICT)
+        
+        serializer = SubcategorySerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(created_by=user)
+        return Response({"status": "success", "message": f"Subcategory created successfully."}, status=status.HTTP_201_CREATED)
     
-#     def delete_cache(self, request):
-#         cache_key = 'featured_products'
-#         cache.delete(cache_key)
-#         return Response({"status": "success", "message": "Cache cleared successfully"}, status=status.HTTP_200_OK)
 
-# class SubCategoryViewSets(viewsets.ViewSet):
-#     serializer_class = SubcategorySerializer
+    @handle_exceptions
+    def list_subcategories(self, request, *args, **kwargs):
+        user = User.objects.filter(id=request.user.id).first()
+        sub_cat = Subcategory.objects.all()
+
+        if not user:
+            return Response({"status": "failed", "message": "User does not exist."}, status=status.HTTP_404_NOT_FOUND)
+        elif user.is_staff == False:
+            return Response({"status": "failed", "message": "You are not permitted to view this resource."}, status=status.HTTP_403_FORBIDDEN)
+        else:
+            serializer = SubcategorySerializer(sub_cat, many=True)
+            return Response({"status": "success", "message": "All subcategories.", "data": serializer.data}, status=status.HTTP_200_OK)
     
-#     @handle_exceptions
-#     def list_subcategories(self, request, *args, **kwargs):
-#         subcategories = Subcategory.objects.all()
 
-#         serializer = self.serializer_class(subcategories, many=True)
+    @handle_exceptions
+    def update_subcategory(self, request, *args, **kwargs):
+        user = User.objects.filter(id=request.user.id).first()
+        subcategory_id = request.data["subcategory_id"]
+        subcategory = request.data["subcategory"]
+        sub_cat = Subcategory.objects.filter(id=subcategory_id).first()
 
-#         subcategories_data = [
-#             {
-#                 "id": subcategory["id"],
-#                 "category": subcategory["category"],
-#                 "subcategory_name": subcategory["subcategory"],
-#             }
-#                 for subcategory in serializer.data
-#         ]
+        
+        if not user:
+            return Response({"status": "failed", "message": "User does not exist."}, status=status.HTTP_404_NOT_FOUND)
+        elif user.is_staff == False:
+            return Response({"status": "failed", "message": "You are not permitted to perform this operation."}, status=status.HTTP_403_FORBIDDEN)
+        elif not sub_cat:
+            return Response({"status": "failed", "message": "Subcategory not found."}, status=status.HTTP_409_CONFLICT)
+        else:
+            serializer = SubcategorySerializer(sub_cat, data=request.data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save(date_modified=timezone.now())
+            return Response({"status": "success", "message": "Subcategory updated successfully."}, status=status.HTTP_200_OK)
+        
+    @handle_exceptions
+    def delete_subcategory(self, request, *args, **kwargs):
+        user = User.objects.filter(id=request.user.id).first()
+        subcategory_id = request.data["subcategory_id"]
+        sub_cat = Subcategory.objects.filter(id=subcategory_id).first()
 
-#         return Response({"status": "success", "message": "All Subcategories.", "data": subcategories_data}, status=status.HTTP_200_OK)
+        if not user:
+            return Response({"status": "failed", "message": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+        elif user.is_staff == False:
+            return Response({"status": "failed", "message": "You are not permitted to perform this operation."}, status=status.HTTP_403_FORBIDDEN)
+        elif not sub_cat:
+            return Response({"status": "failed", "message": "Subcategory not found."}, status=status.HTTP_404_NOT_FOUND)
+        else:
+            sub_cat.delete()
+            return Response({"status": "success", "message": "Subcategory deleted successfully."}, status=status.HTTP_204_NO_CONTENT)
+
+class UploadProductViewSet(viewsets.ViewSet):
+    serializer_class = UploadProductSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    
+    @handle_exceptions
+    def query(self, id):
+        try:
+            product = Product.objects.get(id=id)
+            return product
+        except Product.DoesNotExist:
+            raise PermissionDenied({"status": "failed", "message": "Product does not exist."})
+
+    @handle_exceptions
+    def create(self, request):
+        user = request.user
+        category = request.data['category']
+        subcategory = request.data['subcategory']
+
+        if not user.is_active:
+            raise PermissionDenied({"status": "failed", "message": "Account is not activated."})
+        elif user.is_staff == False:
+            raise PermissionDenied({"status": "failed", "message": "You are not an admin."})
+        elif not Category.objects.filter(id=category).first():
+            return Response({"status": "failed", "message": "Category not found."})
+        elif not Subcategory.objects.filter(id=subcategory).first():
+            return Response({"status": "failed", "message": "Subcategory not found."})
+        
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        product = serializer.save(created_by=user)
+        
+        return Response({"status": "success", "message": "Product uploaded successfully.", "data": serializer.data}, status=status.HTTP_200_OK)
+
+    @handle_exceptions
+    def update(self, request, product_id, *args, **kwargs):
+        user = request.user
+        product = self.query(product_id)
+
+        if user.is_active == False:
+            raise PermissionDenied({"status": "failed", "message": "Account is not activated."})
+        elif user.is_staff == False:
+            raise PermissionDenied({"status": "failed", "message": "You are not an admin."})
+
+        serializer = self.serializer_class(product, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(date_modified=timezone.now())
+        return Response({"status": "success", "message": "Product uploaded successfully.", "data": serializer.data}, status=status.HTTP_201_CREATED)
+    
+    
+    def handle_exception(self, exc):
+        if isinstance(exc, PermissionDenied):
+            return Response(exc.detail, status=status.HTTP_401_UNAUTHORIZED)
+        return super().handle_exception(exc)
 
 # class ProductsViewSet(viewsets.ViewSet):
 #     serializer_class = ProductSerializer
