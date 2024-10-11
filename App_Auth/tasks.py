@@ -40,27 +40,3 @@ Thank you for choosing Ajiroba"""
     }
     util.send_email(data)
 
-
-
-@shared_task
-def bidding_email(user, auction):
-    email_body = f"""Hello {user.first_name},\n\nYou've enter a raffle draw for {auction.name}. The raffle draw will take place on {auction.start_date, auction.start_time}\n\n
-Thank you for choosing Ajiroba"""
-    data = {
-        'email_body': email_body, 
-        'to_email': user.email, 
-        'email_subject': 'Ajiroba Raffle Draws!'
-    }
-    util.send_email(data)
-
-
-@shared_task
-def product_order_email(user, order):
-    email_body = f"""Hello {user.first_name},\n\nYou've order successfully  and your order ID is {order.order_id}. Total cost is ₦{order.total_price}\n\n
-Thank you for choosing Ajiroba"""
-    data = {
-        'email_body': email_body, 
-        'to_email': user.email, 
-        'email_subject': f'Your order is on the way {order.order_id}! - Ajiroba'
-    }
-    util.send_email(data)

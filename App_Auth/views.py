@@ -11,7 +11,6 @@ from rest_framework import viewsets, permissions, status
 from rest_framework import status
 from rest_framework.authtoken.serializers import AuthTokenSerializer
 from knox.auth import TokenAuthentication
-from random import randint
 from rest_framework.views import APIView
 from knox.auth import AuthToken
 from rest_framework.permissions import IsAuthenticated
@@ -28,40 +27,6 @@ from django.contrib.auth.hashers import make_password
 from datetime import date, datetime, timedelta
 from django.utils import timezone
 from django.db.models import Sum, Count
-from functools import wraps
-
-
-def handle_exceptions(func):
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        try:
-            return func(*args, **kwargs)
-        except Exception as e:
-            error_message = str(e)
-            return Response({"status": "failed", "message": error_message}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    return wrapper
-
-def send_otp(email):
-    if email:
-        key = randint(100000, 999999)
-        return key
-    else:
-        return Response({"Error"})
-
-referral_code = generate_referral_code()
-    
-def is_valid_email(email):
-      # Define the regex pattern for email validation
-      pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
-      return re.match(pattern, email)
-
-def is_valid_phone(phone):
-    NIGERIAN_PHONE_REGEX = re.compile(r'^(?:\+234|0)?(?:70|80|81|90|91|70|71)\d{8}$')
-    return re.match(NIGERIAN_PHONE_REGEX, phone)
-
-def is_valid_phone_w(phone):
-    WORLDWIDE_PHONE_REGEX = re.compile(r'^\+(?:[0-9] ?){6,14}[0-9]$')
-    return re.match(WORLDWIDE_PHONE_REGEX, phone)
 
 
 
