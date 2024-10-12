@@ -14,7 +14,7 @@ class CategoryViewSets(viewsets.ViewSet):
 
     @handle_exceptions
     def create_category(self, request):
-        category_name = request.data["name"]
+        category_name = request.data.get("name")
         queryset = Category.objects.filter(name=category_name).exists()
 
         if queryset:
@@ -28,7 +28,7 @@ class CategoryViewSets(viewsets.ViewSet):
         
     @handle_exceptions
     def list_categories(self, request):
-        queryset = Category.objects.all().order_by("date_created")
+        queryset = Category.objects.all().order_by("-date_created")
 
         serializer = self.serializer_class(queryset, many=True)
         category_data = [
@@ -37,15 +37,14 @@ class CategoryViewSets(viewsets.ViewSet):
                 'name': category['name'],
             }
             for category in serializer.data
-        ]
-        
+        ]        
         return Response({"status": "success", "message": "All categories", "data": category_data}, status=status.HTTP_200_OK)
             
     @handle_exceptions
     def create_subcategory(self, request, *args, **kwargs):
         category = request.data["category_id"]
-        subcategory_name = request.data["name"]
-        queryset = Subcategory.objects.filter(name=subcategory_name, category=category)
+        subcategory_name = request.data.get("name")
+        queryset = Subcategory.objects.filter(name=subcategory_name, category=category).exists()
         
         if queryset:
             return Response({"status": "failed", "message": "Subcategory already created."}, status=status.HTTP_409_CONFLICT)
@@ -57,7 +56,7 @@ class CategoryViewSets(viewsets.ViewSet):
 
     @handle_exceptions
     def list_subcategories(self, request, *args, **kwargs):
-        queryset = Subcategory.objects.all()
+        queryset = Subcategory.objects.all().order_by("-date_created")
 
         serializer = SubcategorySerializer(queryset, many=True)
         return Response({"status": "success", "message": "All subcategories.", "data": serializer.data}, status=status.HTTP_200_OK)

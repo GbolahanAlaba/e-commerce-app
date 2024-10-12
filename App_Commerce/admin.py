@@ -1,5 +1,20 @@
-# from django.contrib import admin
-# from App_Commerce.models import *
+from django.contrib import admin
+from . models import *
+
+
+@admin.register(Category)
+class CategoryAdmin(admin.ModelAdmin):
+    list_display = ['name', 'date_created', 'date_modified']
+    list_filter = ['name', 'date_created']
+    search_fields = ['name']
+    ordering = ['-date_created']
+
+@admin.register(Subcategory)
+class SubCategoryAdmin(admin.ModelAdmin):
+    list_display = ['name', 'category', 'date_created', 'date_modified']
+    list_filter = ['name', 'date_created']
+    search_fields = ['name']
+    ordering = ['-date_created']
 
 
 # @admin.register(Cart)
