@@ -42,7 +42,7 @@ class CategoryViewSets(viewsets.ViewSet):
             
     @handle_exceptions
     def create_subcategory(self, request, *args, **kwargs):
-        category = request.data["category_id"]
+        category = request.data.get("category_id")
         subcategory_name = request.data.get("name")
         queryset = Subcategory.objects.filter(name=subcategory_name, category=category).exists()
         
