@@ -16,6 +16,7 @@ from random import randint
 
 class SubcategorySerializer(serializers.ModelSerializer):
     category_id = serializers.UUIDField(write_only=True)
+    category = serializers.SerializerMethodField()
 
     class Meta:
         model = Subcategory
@@ -31,6 +32,10 @@ class SubcategorySerializer(serializers.ModelSerializer):
     
         subcategory = Subcategory.objects.create(category=category, **validated_data)
         return subcategory
+    
+    def get_category(self, obj):
+        return f"{obj.category.name}"
+
     
 
 class CategorySerializer(serializers.ModelSerializer):
