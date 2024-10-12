@@ -15,10 +15,23 @@ from random import randint
 
 
 class SubcategorySerializer(serializers.ModelSerializer):
+    category_id = serializers.UUIDField(write_only=True)
 
     class Meta:
         model = Subcategory
-        fields = ['subcategory_id', 'category', 'name']
+        fields = ['subcategory_id', 'category_id', 'category', 'name']
+
+    def create(self, validated_data):
+        category_id = validated_data.pop('category_id')
+    
+        try:
+            category = Category.objects.get(category_id=category_id)
+        except Category.DoesNotExist:
+            raise serializers.ValidationError("Category does not exist")
+    
+        subcategory = Subcategory.objects.create(category=category, **validated_data)
+        return subcategory
+    
 
 class CategorySerializer(serializers.ModelSerializer):
     subcategories = SubcategorySerializer(many=True, read_only=True)

@@ -5,7 +5,6 @@ from django.utils import timezone
 import uuid
 from django.utils.text import slugify
 from django.utils.crypto import get_random_string
-from django.core.validators import MinValueValidator, MaxValueValidator
 
 
 class Category(models.Model):
