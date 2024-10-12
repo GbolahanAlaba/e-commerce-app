@@ -38,8 +38,8 @@ class Subcategory(models.Model):
 class Product(models.Model):
     product_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=100, blank=True, null=True, default="")
-    category = models.ForeignKey(Category, on_delete=models.SET_NULL, blank=True, null=True, default="", related_name="product_categories")
-    subcategory = models.ForeignKey(Subcategory, on_delete=models.SET_NULL, blank=True, null=True, default="", related_name="product_subcategories")
+    category = models.ForeignKey(Category, on_delete=models.SET_NULL, blank=True, null=True, default="", related_name="product_category")
+    subcategory = models.ForeignKey(Subcategory, on_delete=models.SET_NULL, blank=True, null=True, default="", related_name="product_subcategory")
     price = models.DecimalField(max_digits=100, blank=True, null=False, decimal_places=2, default=0.0)
     discount = models.DecimalField(max_digits=100, blank=True, null=False, decimal_places=2, default=0.0)
     weight = models.CharField(max_length=100, blank=True, null=True, default=0)
@@ -49,7 +49,6 @@ class Product(models.Model):
     featured = models.BooleanField(default=False)
     top_deal = models.BooleanField(default=False)
     product_no = models.CharField(max_length=100, blank=True, null=True, default="")
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True, default="")
     slug = models.SlugField(max_length=250)
     date_created = models.DateTimeField(default=timezone.now)
     date_modified = models.DateTimeField(default=timezone.now)

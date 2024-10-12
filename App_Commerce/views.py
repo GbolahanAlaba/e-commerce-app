@@ -45,7 +45,7 @@ class CategoryViewSets(viewsets.ViewSet):
         category = request.data.get("category_id")
         subcategory_name = request.data.get("name")        
         queryset = Subcategory.objects.filter(name=subcategory_name, category=category).exists()
-        
+
         if queryset:
             return Response({"status": "failed", "message": "Subcategory already created."}, status=status.HTTP_409_CONFLICT)
         serializer = SubcategorySerializer(data=request.data)
@@ -100,8 +100,6 @@ class CategoryViewSets(viewsets.ViewSet):
 
 class UploadProductViewSet(viewsets.ViewSet):
     serializer_class = UploadProductSerializer
-    authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
     
     @handle_exceptions
     def query(self, id):
@@ -128,7 +126,7 @@ class UploadProductViewSet(viewsets.ViewSet):
         
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
-        product = serializer.save(created_by=user)
+        product = serializer.save()
         
         return Response({"status": "success", "message": "Product uploaded successfully.", "data": serializer.data}, status=status.HTTP_200_OK)
 
@@ -152,10 +150,6 @@ class UploadProductViewSet(viewsets.ViewSet):
         if isinstance(exc, PermissionDenied):
             return Response(exc.detail, status=status.HTTP_401_UNAUTHORIZED)
         return super().handle_exception(exc)
-
-
-
-
 
 # class ProductsViewSet(viewsets.ViewSet):
 #     serializer_class = ProductSerializer
