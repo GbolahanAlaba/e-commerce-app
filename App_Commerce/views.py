@@ -101,7 +101,6 @@ class CategoryViewSets(viewsets.ViewSet):
 class UploadProductViewSet(viewsets.ViewSet):
     serializer_class = UploadProductSerializer
     
-    
     @handle_exceptions
     def create_product(self, request):
         category = request.data['category']
