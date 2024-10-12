@@ -101,17 +101,9 @@ class CategoryViewSets(viewsets.ViewSet):
 class UploadProductViewSet(viewsets.ViewSet):
     serializer_class = UploadProductSerializer
     
-    @handle_exceptions
-    def query(self, id):
-        try:
-            product = Product.objects.get(id=id)
-            return product
-        except Product.DoesNotExist:
-            raise PermissionDenied({"status": "failed", "message": "Product does not exist."})
-
+    
     @handle_exceptions
     def create_product(self, request):
-        user = request.user
         category = request.data['category']
         subcategory = request.data['subcategory']
 
@@ -125,12 +117,7 @@ class UploadProductViewSet(viewsets.ViewSet):
     @handle_exceptions
     def update(self, request, product_id, *args, **kwargs):
         user = request.user
-        product = self.query(product_id)
-
-        if user.is_active == False:
-            raise PermissionDenied({"status": "failed", "message": "Account is not activated."})
-        elif user.is_staff == False:
-            raise PermissionDenied({"status": "failed", "message": "You are not an admin."})
+        product = validate_product(product_id)
 
         serializer = self.serializer_class(product, data=request.data)
         serializer.is_valid(raise_exception=True)

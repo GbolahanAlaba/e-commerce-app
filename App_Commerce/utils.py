@@ -40,3 +40,11 @@ def validate_subcategory(subcategory_id):
         return product
     except Subcategory.DoesNotExist:
         raise PermissionDenied({"status": "failed", "message": "Subcategory does not exist."})
+
+@handle_exceptions
+def validate_product(self, product_id):
+    try:
+        product = Product.objects.get(product_id=product_id)
+        return product
+    except Product.DoesNotExist:
+        raise PermissionDenied({"status": "failed", "message": "Product does not exist."})
