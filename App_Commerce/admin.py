@@ -1,6 +1,11 @@
 from django.contrib import admin
 from . models import *
 
+def duplicate_records(modeladmin, request, queryset):
+    for record in queryset:
+        record.pk = None  # Set primary key to None to create a new record
+        record.save()
+
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
@@ -16,6 +21,18 @@ class SubCategoryAdmin(admin.ModelAdmin):
     search_fields = ['name']
     ordering = ['-date_created']
 
+
+@admin.register(Product)
+class ProductAdmin(admin.ModelAdmin):
+    list_display = ['name', 'description', 'category', 'subcategory', 'price', 'discount', 'quantity', 'slug', 'featured', 'top_deal', 'date_created', 'date_modified']
+    list_filter = ['name', 'category', 'date_created']
+    search_fields = ['name', 'category', 'subcategory']
+    prepopulated_fields = {'slug': ('name',)}
+    date_hierarchy = 'date_created'
+    ordering = ['-date_created']
+    list_editable = ['description', 'category', 'subcategory', 'price', 'discount', 'quantity', 'slug', 'featured', 'top_deal',]
+    list_display_links = ['name']
+    actions = [duplicate_records]
 
 # @admin.register(Cart)
 # class Cartdmin(admin.ModelAdmin):

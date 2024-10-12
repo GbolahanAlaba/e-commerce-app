@@ -1,13 +1,9 @@
-from django.core.mail import send_mail
-from django.conf import settings
 from django.core.mail import EmailMessage
 from functools import wraps
 from rest_framework.response import Response
 from rest_framework import status
-import re
-import random
-import string
-from random import randint
+from . models import *
+from rest_framework.exceptions import PermissionDenied
 
 
 class util:
@@ -19,7 +15,6 @@ class util:
         email.send()
 
 
-
 def handle_exceptions(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
@@ -29,3 +24,19 @@ def handle_exceptions(func):
             error_message = str(e)
             return Response({"status": "failed", "message": error_message}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     return wrapper
+
+@handle_exceptions
+def validate_category(category_id):
+    try:
+        category = Category.objects.get(category_id=category_id)
+        return category
+    except Category.DoesNotExist:
+        raise PermissionDenied({"status": "failed", "message": "Category does not exist."})
+    
+@handle_exceptions
+def validate_subcategory(subcategory_id):
+    try:
+        product = Subcategory.objects.get(subcategory_id=subcategory_id)
+        return product
+    except Subcategory.DoesNotExist:
+        raise PermissionDenied({"status": "failed", "message": "Subcategory does not exist."})

@@ -36,8 +36,6 @@ class SubcategorySerializer(serializers.ModelSerializer):
     def get_category(self, obj):
         return f"{obj.category.name}"
 
-    
-
 class CategorySerializer(serializers.ModelSerializer):
     subcategories = SubcategorySerializer(many=True, read_only=True)
 
@@ -67,7 +65,7 @@ class UploadProductSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Product
-        fields = ('id', 'name', 'category', 'subcategory', 'price', 'discount', 'quantity', 'weight', 'featured', 'top_deal', 'description', 'slug', 'images', 'product_images')
+        fields = ('product_id', 'name', 'category', 'subcategory', 'price', 'discount', 'quantity', 'weight', 'featured', 'top_deal', 'description', 'slug', 'images', 'product_images')
 
     def create(self, validated_data):
         product_images = validated_data.pop('product_images', [])

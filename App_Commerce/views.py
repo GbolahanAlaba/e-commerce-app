@@ -110,24 +110,16 @@ class UploadProductViewSet(viewsets.ViewSet):
             raise PermissionDenied({"status": "failed", "message": "Product does not exist."})
 
     @handle_exceptions
-    def create(self, request):
+    def create_product(self, request):
         user = request.user
         category = request.data['category']
         subcategory = request.data['subcategory']
 
-        if not user.is_active:
-            raise PermissionDenied({"status": "failed", "message": "Account is not activated."})
-        elif user.is_staff == False:
-            raise PermissionDenied({"status": "failed", "message": "You are not an admin."})
-        elif not Category.objects.filter(id=category).first():
-            return Response({"status": "failed", "message": "Category not found."})
-        elif not Subcategory.objects.filter(id=subcategory).first():
-            return Response({"status": "failed", "message": "Subcategory not found."})
-        
+        validate_category(category)
+        validate_subcategory(subcategory)
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         product = serializer.save()
-        
         return Response({"status": "success", "message": "Product uploaded successfully.", "data": serializer.data}, status=status.HTTP_200_OK)
 
     @handle_exceptions
