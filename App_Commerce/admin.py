@@ -34,6 +34,16 @@ class ProductAdmin(admin.ModelAdmin):
     list_display_links = ['name']
     actions = [duplicate_records]
 
+
+@admin.register(ProductImage)
+class ProductImageAdmin(admin.ModelAdmin):
+    list_display = ['product', 'image', 'date_created']
+    list_filter = ['product', 'date_created']
+    list_editable = ['image']
+    search_fields = ['product']
+    ordering = ['-date_created']
+
+    
 # @admin.register(Cart)
 # class Cartdmin(admin.ModelAdmin):
 #     list_display = ['user', 'session_key', 'date_created', 'date_modified']

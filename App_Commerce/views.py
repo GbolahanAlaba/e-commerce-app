@@ -125,10 +125,10 @@ class UploadProductViewSet(viewsets.ViewSet):
         return Response({"status": "success", "message": "Product uploaded successfully.", "data": serializer.data}, status=status.HTTP_201_CREATED)
     
     
-    def handle_exception(self, exc):
-        if isinstance(exc, PermissionDenied):
-            return Response(exc.detail, status=status.HTTP_401_UNAUTHORIZED)
-        return super().handle_exception(exc)
+    # def handle_exception(self, exc):
+    #     if isinstance(exc, PermissionDenied):
+    #         return Response(exc.detail, status=status.HTTP_401_UNAUTHORIZED)
+    #     return super().handle_exception(exc)
 
 # class ProductsViewSet(viewsets.ViewSet):
 #     serializer_class = ProductSerializer
