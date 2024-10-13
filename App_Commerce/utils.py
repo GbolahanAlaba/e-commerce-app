@@ -48,3 +48,11 @@ def validate_product(self, product_id):
         return product
     except Product.DoesNotExist:
         raise PermissionDenied({"status": "failed", "message": "Product does not exist."})
+    
+
+
+
+# def handle_exception(self, exc):
+    #     if isinstance(exc, PermissionDenied):
+    #         return Response(exc.detail, status=status.HTTP_401_UNAUTHORIZED)
+    #     return super().handle_exception(exc)

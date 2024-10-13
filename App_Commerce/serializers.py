@@ -12,8 +12,6 @@ from random import randint
 
 
 
-
-
 class SubcategorySerializer(serializers.ModelSerializer):
     category_id = serializers.UUIDField(write_only=True)
     category = serializers.SerializerMethodField()
@@ -65,7 +63,7 @@ class UploadProductSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Product
-        fields = ('product_id', 'name', 'category', 'subcategory', 'price', 'discount', 'quantity', 'weight', 'featured', 'top_deal', 'description', 'slug', 'images', 'product_images')
+        fields = ['product_id', 'name', 'category', 'subcategory', 'price', 'discount', 'quantity', 'weight', 'featured', 'top_deal', 'description', 'slug', 'images', 'product_images']
 
     def create(self, validated_data):
         product_images = validated_data.pop('product_images', [])
@@ -97,14 +95,19 @@ class UploadProductSerializer(serializers.ModelSerializer):
             for image_data in product_images_data:
                 ProductImage.objects.create(product=instance, image=image_data)
         return instance
+
+class ProductSerializer(serializers.ModelSerializer):
+    images = ProductImageSerializer(many=True, read_only=True)
     
-# class ProductSerializer(serializers.ModelSerializer):
-#     images = ProductImageSerializer(many=True, read_only=True)
-#     delivery_estimation = serializers.SerializerMethodField()
-    
-#     class Meta:
-#         model = Product
-#         fields = ['id', 'name', 'product_reviews', 'category', 'subcategory', 'price', 'discount', 'weight', 'delivery_estimation', 'description', 'slug', 'images',]
+    class Meta:
+        model = Product
+        fields = ['product_id', 'name', 'category', 'subcategory', 'price', 'discount', 'weight', 'description', 'slug', 'images',]
+
+
+
+
+
+
 
 # class CartItemSerializer(serializers.ModelSerializer):
 

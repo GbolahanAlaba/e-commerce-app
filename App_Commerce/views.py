@@ -9,6 +9,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.contrib.sessions.models import Session
 
 
+
 class CategoryViewSets(viewsets.ViewSet):
     serializer_class = CategorySerializer
 
@@ -100,6 +101,14 @@ class CategoryViewSets(viewsets.ViewSet):
 
 class UploadProductViewSet(viewsets.ViewSet):
     serializer_class = UploadProductSerializer
+
+    @handle_exceptions
+    def validate_product(self, product_id):
+        try:
+            product = Product.objects.get(product_id=product_id)
+            return product
+        except Product.DoesNotExist:
+            raise PermissionDenied({"status": "failed", "message": "Product does not exist."})
     
     @handle_exceptions
     def create_product(self, request):
@@ -114,47 +123,37 @@ class UploadProductViewSet(viewsets.ViewSet):
         return Response({"status": "success", "message": "Product uploaded successfully.", "data": serializer.data}, status=status.HTTP_200_OK)
 
     @handle_exceptions
-    def update(self, request, product_id, *args, **kwargs):
-        user = request.user
-        product = validate_product(product_id)
+    def update_product(self, request, product_id):
+        product = self.validate_product(product_id)
 
         serializer = self.serializer_class(product, data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save(date_modified=timezone.now())
-        return Response({"status": "success", "message": "Product uploaded successfully.", "data": serializer.data}, status=status.HTTP_201_CREATED)
+        return Response({"status": "success", "message": "Product updated successfully.", "data": serializer.data}, status=status.HTTP_201_CREATED)
     
-    
-    # def handle_exception(self, exc):
-    #     if isinstance(exc, PermissionDenied):
-    #         return Response(exc.detail, status=status.HTTP_401_UNAUTHORIZED)
-    #     return super().handle_exception(exc)
 
-# class ProductsViewSet(viewsets.ViewSet):
-#     serializer_class = ProductSerializer
 
-#     @handle_exceptions
-#     def all_products(self, request, *args, **kwargs):
-#         queryset = Product.objects.all().order_by("-date_created")
-#         serializer = self.serializer_class(queryset, many=True)
+class ProductsViewSet(viewsets.ViewSet):
+    serializer_class = ProductSerializer
 
-#         product_data = []
-#         for product in serializer.data:
-#             # images = [{"product": product.get('name'), "images": img['image']} for img in product.get('images', [])]
-#             product_ins = Product.objects.get(id=product['id'])
-#             average_rating = product_ins.reviews.aggregate(Avg('rating'))['rating__avg']
-#             rounded_average_rating = math.ceil(average_rating) if average_rating is not None else 0
+    @handle_exceptions
+    def all_products(self, request, *args, **kwargs):
+        queryset = Product.objects.all().order_by("-date_created")
+        serializer = self.serializer_class(queryset, many=True)
 
-#             selected_fields = {
-#                 'id': product.get('id'),
-#                 'name': product.get('name'),
-#                 'price': product.get('price'),
-#                 'discount': product.get('discount'),
-#                 'reviews': rounded_average_rating,
-#                 'images': product.get('images')                     
-#             }
-#             product_data.append(selected_fields)
+        product_data = []
+        for product in serializer.data:
+
+            selected_fields = {
+                'product_id': product.get('product_id'),
+                'name': product.get('name'),
+                'price': product.get('price'),
+                'discount': product.get('discount'),
+                'images': product.get('images')                     
+            }
+            product_data.append(selected_fields)
         
-#         return Response({"status": "success", "message": "All products.", "data": product_data}, status=status.HTTP_200_OK)
+        return Response({"status": "success", "message": "All products.", "data": product_data}, status=status.HTTP_200_OK)
     
 #     @handle_exceptions
 #     def featured_products(self, request, *args, **kwargs):
