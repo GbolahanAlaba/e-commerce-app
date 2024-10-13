@@ -82,6 +82,7 @@ class UploadProductSerializer(serializers.ModelSerializer):
         instance.subcategory = validated_data.get('subcategory', instance.subcategory)
         instance.price = validated_data.get('price', instance.price)
         instance.discount = validated_data.get('discount', instance.discount)
+        instance.quantity = validated_data.get('quantity', instance.quantity)
         instance.weight = validated_data.get('weight', instance.weight)
         instance.description = validated_data.get('description', instance.description)
         instance.save()

@@ -1,6 +1,7 @@
 from . models import *
 from . serializers import *
 from . serializers import *
+from App_Commerce.utils import validate_product
 from . utils import *
 from rest_framework import viewsets, permissions, status
 from rest_framework import status
@@ -102,14 +103,7 @@ class CategoryViewSets(viewsets.ViewSet):
 class UploadProductViewSet(viewsets.ViewSet):
     serializer_class = UploadProductSerializer
 
-    @handle_exceptions
-    def validate_product(self, product_id):
-        try:
-            product = Product.objects.get(product_id=product_id)
-            return product
-        except Product.DoesNotExist:
-            raise PermissionDenied({"status": "failed", "message": "Product does not exist."})
-    
+
     @handle_exceptions
     def create_product(self, request):
         category = request.data['category']
@@ -124,7 +118,8 @@ class UploadProductViewSet(viewsets.ViewSet):
 
     @handle_exceptions
     def update_product(self, request, product_id):
-        product = self.validate_product(product_id)
+        product = validate_product(product_id)
+
 
         serializer = self.serializer_class(product, data=request.data)
         serializer.is_valid(raise_exception=True)
