@@ -1,7 +1,6 @@
 from . models import *
 from . serializers import *
 from . serializers import *
-from App_Commerce.utils import validate_product
 from . utils import *
 from rest_framework import viewsets, permissions, status
 from rest_framework import status
@@ -113,7 +112,7 @@ class UploadProductViewSet(viewsets.ViewSet):
         validate_subcategory(subcategory)
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
-        product = serializer.save()
+        serializer.save()
         return Response({"status": "success", "message": "Product uploaded successfully.", "data": serializer.data}, status=status.HTTP_200_OK)
 
     @handle_exceptions
