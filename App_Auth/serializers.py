@@ -10,6 +10,7 @@ from rest_framework.exceptions import *
 from . utils import *
 from drf_extra_fields.fields import Base64ImageField
 
+User = get_user_model()
 
 
 class AuthTokenSerializer(serializers.Serializer):
@@ -33,21 +34,60 @@ class AuthTokenSerializer(serializers.Serializer):
         password = attrs.get('password')
 
         if email_or_phone and password:
-            # Check if email_or_phone is a valid email
-            user = authenticate(request=self.context.get('request'), email=email_or_phone, password=password)
-            if not user:
-                # If not a valid email, check if it's a valid phone number
-                user = authenticate(request=self.context.get('request'), phone=email_or_phone, password=password)
+            # Try to find the user by email first
+            user = User.objects.filter(email=email_or_phone).first()
 
+            # If no user is found by email, try to find by phone number
             if not user:
+                user = User.objects.filter(phone=email_or_phone).first()
+
+            # Check if the user exists and verify the password
+            if user and user.check_password(password):
+                attrs['user'] = user
+            else:
                 raise NotAuthenticated({"status": "failed", "message": "Incorrect login details"}, code=status.HTTP_401_UNAUTHORIZED)
-
         else:
             msg = _('Must include "email_or_phone" and "password".')
             raise serializers.ValidationError(msg, code='authorization')
 
-        attrs['user'] = user
         return attrs
+
+# class AuthTokenSerializer(serializers.Serializer):
+#     email_or_phone = serializers.CharField(
+#         label=_("Email/Phone"),
+#         write_only=True
+#     )
+#     password = serializers.CharField(
+#         label=_("Password"),
+#         style={'input_type': 'password'},
+#         trim_whitespace=False,
+#         write_only=True
+#     )
+#     token = serializers.CharField(
+#         label=_("Token"),
+#         read_only=True
+#     )
+
+#     def validate(self, attrs):
+#         email_or_phone = attrs.get('email_or_phone')
+#         password = attrs.get('password')
+
+#         if email_or_phone and password:
+#             # Check if email_or_phone is a valid email
+#             user = authenticate(request=self.context.get('request'), email=email_or_phone, password=password)
+#             if not user:
+#                 # If not a valid email, check if it's a valid phone number
+#                 user = authenticate(request=self.context.get('request'), phone=email_or_phone, password=password)
+
+#             if not user:
+#                 raise NotAuthenticated({"status": "failed", "message": "Incorrect login details"}, code=status.HTTP_401_UNAUTHORIZED)
+
+#         else:
+#             msg = _('Must include "email_or_phone" and "password".')
+#             raise serializers.ValidationError(msg, code='authorization')
+
+#         attrs['user'] = user
+#         return attrs
 
 class SignupSerializer(serializers.ModelSerializer):
     referral = serializers.CharField(max_length=100, required=False, allow_blank=True)
