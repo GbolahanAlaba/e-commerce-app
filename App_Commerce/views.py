@@ -45,7 +45,7 @@ class CategoryViewSets(viewsets.ViewSet):
             }
             for category in serializer.data
         ]        
-        return Response({"status": "success", "message": f"All categories {user.email}", "data": category_data}, status=status.HTTP_200_OK)
+        return Response({"status": "success", "message": f"All categories by {user}", "data": category_data}, status=status.HTTP_200_OK)
             
     @handle_exceptions
     def create_subcategory(self, request, *args, **kwargs):
