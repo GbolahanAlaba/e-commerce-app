@@ -3,12 +3,12 @@ from django.shortcuts import render
 
 from App import settings
 from App_Auth.models import *
-# from App_Payments.models import *
 from django.contrib.auth.models import User, Group
 from django.contrib.auth import get_user_model
 from rest_framework import generics
 from rest_framework import viewsets, permissions, status
 from rest_framework import status
+from rest_framework_simplejwt.tokens import RefreshToken 
 from rest_framework.authtoken.serializers import AuthTokenSerializer
 from knox.auth import TokenAuthentication
 from rest_framework.views import APIView
@@ -16,17 +16,13 @@ from knox.auth import AuthToken
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth.signals import user_logged_in, user_logged_out
 from . serializers import *
-from django.http import JsonResponse
 from django.db.models import Q
-from django.db.models import Sum, Count
-import re
 from . utils import *
 from . tasks import *
 from django.core.mail import send_mail
 from django.contrib.auth.hashers import make_password
 from datetime import date, datetime, timedelta
 from django.utils import timezone
-from django.db.models import Sum, Count
 
 
 
@@ -34,7 +30,7 @@ class AuthViewSets(viewsets.ModelViewSet):
     serializer_class = AuthTokenSerializer
     queryset = User.objects.all()
 
-    @handle_exceptions
+    # @handle_exceptions
     def signin(self, request):
         email_or_phone = request.data['email_or_phone']
 
@@ -46,20 +42,22 @@ class AuthViewSets(viewsets.ModelViewSet):
 
         elif not checkUser.is_active:
             return Response({"status": "failed", "message": "Account is not verified"}, status=status.HTTP_403_FORBIDDEN)
-        
+
         else:
             serializer = self.serializer_class(data=request.data)
             serializer.is_valid(raise_exception=True)
             user = serializer.validated_data["user"]
             user.last_login = timezone.now()
             user.save(update_fields=["last_login"])
-            _, token = AuthToken.objects.create(user)   
+
+            # Generate JWT Token (both access and refresh tokens)
+            refresh = RefreshToken.for_user(user)  # This will create the JWT refresh and access tokens
 
             response_data = {
                 "status": "success",
                 "message": "Signin successfully",
-                "data":{
-                    "user_id": user.user_id,
+                "data": {
+                    # "user_id": user.user_id,
                     "first_name": user.first_name,
                     "last_name": user.last_name,
                     "email": user.email,
@@ -70,12 +68,17 @@ class AuthViewSets(viewsets.ModelViewSet):
                     "residential": user.residential,
                     "gender": user.gender,
                     "referral_code": user.referral_code,
-                    "is_staff": user.is_staff
+                    "is_staff": user.is_staff,
                 },
-            "token": token
+                "tokens": {
+                    "access": str(refresh.access_token),  # Return the access token
+                    "refresh": str(refresh)  # Return the refresh token
+                }
             }
+
             if user.profile_image:
                 response_data['profile_image_url'] = request.build_absolute_uri(user.profile_image.url)
+
             return Response(response_data, status=status.HTTP_200_OK)
 
     @handle_exceptions

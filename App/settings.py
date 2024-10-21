@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 import os
+from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -43,6 +44,7 @@ INSTALLED_APPS = [
     'App_Commerce.apps.AppCommerceConfig',
     'rest_framework',
     'knox',
+    'rest_framework_simplejwt',
 ]
 
 MIDDLEWARE = [
@@ -141,10 +143,25 @@ AUTH_USER_MODEL = 'App_Auth.User' # User authentication
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'knox.auth.TokenAuthentication',
+        # 'knox.auth.TokenAuthentication',
         'rest_framework.authentication.BasicAuthentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication',  
     ],
     # 'DEFAULT_PAGINATION_CLASS': 'App_Purchase.pagination.IMEISPagination',
     # 'PAGE_SIZE': 10,
     'EXCEPTION_HANDLER': 'App_Auth.custom_exception_handler.custom_exception_handler',
     }
+
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),  # Set token expiry time (customize as needed)
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'ROTATE_REFRESH_TOKENS': False,
+    'BLACKLIST_AFTER_ROTATION': True,
+    'ALGORITHM': 'HS256',
+    'SIGNING_KEY': SECRET_KEY,  # Make sure you use the same signing key as in your project
+    'AUTH_HEADER_TYPES': ('Bearer',),
+    'USER_ID_FIELD': 'user_id',  # Use 'user_id' as the user identifier
+    'USER_ID_CLAIM': 'user_id',  # Ensure the token carries this claim
+}

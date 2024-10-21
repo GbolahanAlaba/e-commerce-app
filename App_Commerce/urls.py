@@ -15,6 +15,8 @@ urlpatterns = [
    path('create-product/', UploadProductViewSet.as_view({"post": "create_product"}), name='product-create'),
    path('update-product/<str:product_id>/', UploadProductViewSet.as_view({"put": "update_product"}), name='product-update'),
    path('all-products/', ProductsViewSet.as_view({"get": "all_products"}), name='products-all'),
+
+   
    
   
 ]

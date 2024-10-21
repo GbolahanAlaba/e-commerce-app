@@ -6,15 +6,27 @@ from rest_framework import viewsets, permissions, status
 from rest_framework import status
 from knox.auth import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework_simplejwt.authentication import JWTAuthentication 
 from django.contrib.sessions.models import Session
+from rest_framework.views import APIView
 
 
+class ProtectedView(APIView):
+    permission_classes = [IsAuthenticated]  # JWT will handle the authentication
+
+    def get(self, request):
+        content = {'message': 'This is a protected view!'}
+        return Response(content)
 
 class CategoryViewSets(viewsets.ViewSet):
     serializer_class = CategorySerializer
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
 
     @handle_exceptions
     def create_category(self, request):
+        user = request.user
+        print(user) 
         category_name = request.data.get("name")
         queryset = Category.objects.filter(name=category_name).exists()
 
@@ -24,11 +36,12 @@ class CategoryViewSets(viewsets.ViewSet):
             serializer = self.serializer_class(data=request.data)
             serializer.is_valid(raise_exception=True)
             serializer.save()
-            return Response({"status": "success", "message": "Category created successfully"}, status=status.HTTP_201_CREATED)
+            return Response({"status": "success", "message": f"Category created successfully by {user.first_name}"}, status=status.HTTP_201_CREATED)
         
         
     @handle_exceptions
     def list_categories(self, request):
+        user = request.user
         queryset = Category.objects.all().order_by("-date_created")
 
         serializer = self.serializer_class(queryset, many=True)
@@ -39,7 +52,7 @@ class CategoryViewSets(viewsets.ViewSet):
             }
             for category in serializer.data
         ]        
-        return Response({"status": "success", "message": "All categories", "data": category_data}, status=status.HTTP_200_OK)
+        return Response({"status": "success", "message": f"All categories {user.email}", "data": category_data}, status=status.HTTP_200_OK)
             
     @handle_exceptions
     def create_subcategory(self, request, *args, **kwargs):
@@ -57,10 +70,11 @@ class CategoryViewSets(viewsets.ViewSet):
 
     @handle_exceptions
     def list_subcategories(self, request, *args, **kwargs):
+        user = request.user
         queryset = Subcategory.objects.all().order_by("-date_created")
 
         serializer = SubcategorySerializer(queryset, many=True)
-        return Response({"status": "success", "message": "All subcategories.", "data": serializer.data}, status=status.HTTP_200_OK)
+        return Response({"status": "success", "message": f"All subcategories. {user.email}", "data": serializer.data}, status=status.HTTP_200_OK)
     
 
     # @handle_exceptions
@@ -124,8 +138,6 @@ class UploadProductViewSet(viewsets.ViewSet):
         serializer.is_valid(raise_exception=True)
         serializer.save(date_modified=timezone.now())
         return Response({"status": "success", "message": "Product updated successfully.", "data": serializer.data}, status=status.HTTP_201_CREATED)
-    
-
 
 class ProductsViewSet(viewsets.ViewSet):
     serializer_class = ProductSerializer

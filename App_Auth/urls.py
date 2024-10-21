@@ -3,6 +3,11 @@ from . import views
 from rest_framework.routers import DefaultRouter
 from App_Auth.views import *
 from knox import views as knox_views
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+)
+
 
 
 
@@ -24,5 +29,7 @@ urlpatterns = [
    path('signin/', AuthViewSets.as_view({"post": "signin"}), name='signin'),
    path('signup/', AuthViewSets.as_view({"post": "signup"}), name='signup'),
    path('reset_password/<str:otp>/', AuthViewSets.as_view({"put": "put"}), name='verify_reset_password_code'),
+
+   path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
    
 ]
