@@ -36,7 +36,9 @@ class CategoryViewSets(viewsets.ViewSet):
     def list_categories(self, request):
         user = request.user
         queryset = Category.objects.all().order_by("-date_created")
-
+        
+        if not user.is_admin:
+            return Response({"status": "failed", "message": "You are unauthorised to access this resource."}, status=status.HTTP_409_CONFLICT)
         serializer = self.serializer_class(queryset, many=True)
         category_data = [
             {

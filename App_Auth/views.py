@@ -50,9 +50,7 @@ class AuthViewSets(viewsets.ModelViewSet):
             user.last_login = timezone.now()
             user.save(update_fields=["last_login"])
 
-            # Generate JWT Token (both access and refresh tokens)
             refresh = RefreshToken.for_user(user)  # This will create the JWT refresh and access tokens
-
             response_data = {
                 "status": "success",
                 "message": "Signin successfully",
@@ -72,7 +70,7 @@ class AuthViewSets(viewsets.ModelViewSet):
                 },
                 "tokens": {
                     "access": str(refresh.access_token),  # Return the access token
-                    "refresh": str(refresh)  # Return the refresh token
+                    "refresh": str(refresh),  # Return the refresh token
                 }
             }
 
