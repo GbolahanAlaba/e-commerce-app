@@ -30,7 +30,7 @@ class AuthViewSets(viewsets.ModelViewSet):
     serializer_class = AuthTokenSerializer
     queryset = User.objects.all()
 
-    # @handle_exceptions
+    @handle_exceptions
     def signin(self, request):
         email_or_phone = request.data['email_or_phone']
 
