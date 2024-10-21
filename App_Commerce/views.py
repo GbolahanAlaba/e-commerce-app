@@ -11,13 +11,6 @@ from django.contrib.sessions.models import Session
 from rest_framework.views import APIView
 
 
-class ProtectedView(APIView):
-    permission_classes = [IsAuthenticated]  # JWT will handle the authentication
-
-    def get(self, request):
-        content = {'message': 'This is a protected view!'}
-        return Response(content)
-
 class CategoryViewSets(viewsets.ViewSet):
     serializer_class = CategorySerializer
     authentication_classes = [JWTAuthentication]
