@@ -30,6 +30,6 @@ urlpatterns = [
    path('signup/', AuthViewSets.as_view({"post": "signup"}), name='signup'),
    path('reset_password/<str:otp>/', AuthViewSets.as_view({"put": "put"}), name='verify_reset_password_code'),
 
-   path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+   path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh')
    
 ]
