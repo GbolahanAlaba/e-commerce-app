@@ -152,9 +152,9 @@ REST_FRAMEWORK = {
     'EXCEPTION_HANDLER': 'App_Auth.custom_exception_handler.custom_exception_handler',
     }
 
-
+time = 60 * 60
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),  # Set token expiry time (customize as needed)
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=time),  # Set token expiry time (customize as needed)
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
     'ROTATE_REFRESH_TOKENS': False,
     'BLACKLIST_AFTER_ROTATION': True,
