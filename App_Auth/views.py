@@ -55,7 +55,7 @@ class AuthViewSets(viewsets.ModelViewSet):
                 "status": "success",
                 "message": "Signin successfully",
                 "data": {
-                    # "user_id": user.user_id,
+                    "user_id": user.user_id,
                     "first_name": user.first_name,
                     "last_name": user.last_name,
                     "email": user.email,
